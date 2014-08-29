@@ -1,0 +1,4 @@
+cron:
+- description: feedreader
+  url: /update_feeds
+  schedule: every 4 hours

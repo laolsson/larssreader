@@ -5,6 +5,8 @@ Freetext real-time search of all feeds
 Store text of items
 - build index
 
+Send email with link to add feed
+
 UI
 
 Feeds

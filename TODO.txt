@@ -1,0 +1,24 @@
+Freetext real-time search of all feeds
+- Index the text of feeds
+- each character you type send request
+
+Store text of items
+- build index
+
+UI
+
+Feeds
+-> Category A -> feeds
+-> Catgory B
+ -> Category C
+ -> Category D
+ store as string for on each feed "Category A/Category B"
+ when deleting category move feed up
+ 
+
+Email link to useful feed
+
+Admin:
+- when to delete items:
+  - when read
+  - x days

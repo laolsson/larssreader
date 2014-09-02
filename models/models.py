@@ -1,35 +1,4 @@
 from google.appengine.ext import db
-
-# Each user has a list of UFeeds. 
-# Each UFeed has a list of UItems.
-
-# A UFeed has a pointer to a real feed and each UItem a pointer to a real item
-
-# To display all feed and items for a user:
-	# for all f in UFeeds:
-		# print UFeed id
-		# for all items in f:
-			# create a UItem unless it already exists
-			# print item based on UItem has been read or not
-			# print UItem id
-			
-# To read item:
-	# find UItem:
-		# find real item
-		# change UItem to read = True
-		# redirect
-		
-# To update feed:
-	# get real feed from UFeed id and update
-	
-# To delete feed
-	# delete UFeed
-	# if no other user has Feed delete feed
-		
-# To add feed:
-	# check if Feed already exists, if not create
-	# create UFeed and add to user
-
 	
 class User(db.Model):
 	name = db.StringProperty(required=False)
@@ -42,6 +11,7 @@ class LFeed(db.Model):
 	last_update = db.DateTimeProperty(required=False)
 	last_successful_update = db.DateTimeProperty(required=False)
 	failed_attempts = db.IntegerProperty(required=False)
+	category = db.StringProperty(required=False)
 	user = db.ReferenceProperty(User, collection_name='feeds')
 
 class LFeedItem(db.Model): 

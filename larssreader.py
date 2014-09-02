@@ -1,22 +1,26 @@
 import cgi
 import datetime
+import json
 import logging
+import os
 import time
 from time import mktime
 import traceback
 import xml.etree.ElementTree as ET
 
-
 # app engine
 from google.appengine.api import users
 from google.appengine.ext.webapp.util import login_required
+from google.appengine.ext.webapp import template
 import webapp2
 
 # local libraries
 import feedparser
 
 # local files
-import feed
+from models.models import LFeed
+from models.models import User
+from models.models import LFeedItem
 
 HTML_HEADER = """\
 <!DOCTYPE html>
@@ -76,10 +80,11 @@ UPLOAD_OPML_HTML = """\
 def header(fn):
 	def wrapper(self):
 		user = users.get_current_user()
-		self.response.out.write(HTML_HEADER)
-		self.response.out.write('Welcome, %s! (<a href="%s">sign out</a>)' % (user.nickname(), users.create_logout_url('/')))
-		self.response.out.write(ADD_FEED_HTML)
-		self.response.out.write(UPLOAD_OPML_HTML)
+		
+		#self.response.out.write(HTML_HEADER)
+		#self.response.out.write('Welcome, %s! (<a href="%s">sign out</a>)' % (user.nickname(), users.create_logout_url('/')))
+		#self.response.out.write(ADD_FEED_HTML)
+		#self.response.out.write(UPLOAD_OPML_HTML)
 		return fn(self)
 	return wrapper
 	
@@ -92,7 +97,7 @@ def footer(fn):
 	return wrapper
 
 def get_feed_user(google_user):
-	u = feed.User.gql("WHERE id = :1", google_user.user_id())
+	u = User.gql("WHERE id = :1", google_user.user_id())
 	if u.count() > 0:
 		user_obj = u.get()
 		logging.info("User " + google_user.nickname() + " logged in")
@@ -112,35 +117,46 @@ class MainPage(webapp2.RequestHandler):
 	@footer
 	def get(self):
 		user = get_feed_user(users.get_current_user())
-		for f in user.feeds:
-			# If the feed is missing a title use the url
-			if not f.title:
-				ftitle = f.url
-			else:
-				ftitle = f.title
-				
-			unread_items = [i for i in f.items if not i.read] #f.items.filter('read =', True)
-			logging.info("unread items:" + str(len(unread_items)))
-			if len(unread_items) > 0:
-				ftitle = '<b>' + ftitle + '(' + str(len(unread_items)) + ')</b>'
-			else:
-				ftitle = ftitle + '(0)'
-			self.response.out.write('<br><a id="display_title" href="javascript:toggle(' +
-				str(f.key().id()) + ');">' + ftitle+ '</a> <a href="/update_feed?id=' +
-				str(f.key().id()) + '">Update</a> </a> <a href="/delete_feed?id=' +
-				str(f.key().id()) + '">Delete</a>')
-			self.response.out.write('<div id="' + str(f.key().id()) + '" style="display: none">')
-			
-			for i in f.items.order('-date'):
-				title = '->' + i.title					
-				if not i.read:
-					title = '<b>' + title + '</b>'
-				self.response.out.write('<a href="/read?id='  + str(i.key().id()) +
-					' " target="_blank">' + title + '</a> ' +
-					i.date.strftime("%A, %d. %B %Y %I:%M%p") + '<br>')
-			self.response.out.write('</div>')
 		
-		self.response.out.write('</body></html>')
+		path = os.path.join(os.path.dirname(__file__), 'views' ,'index.html')
+		self.response.out.write(
+		
+		template.render( path,{
+                "name"	: users.get_current_user().nickname(),
+                "signout_url"	: users.create_logout_url('/'),
+                "domain": "www.socs.se"
+		}))
+		
+		
+		# for f in user.feeds:
+			# # If the feed is missing a title use the url
+			# if not f.title:
+				# ftitle = f.url
+			# else:
+				# ftitle = f.title
+				
+			# unread_items = [i for i in f.items if not i.read] #f.items.filter('read =', True)
+			# logging.info("unread items:" + str(len(unread_items)))
+			# if len(unread_items) > 0:
+				# ftitle = '<b>' + ftitle + '(' + str(len(unread_items)) + ')</b>'
+			# else:
+				# ftitle = ftitle + '(0)'
+			# self.response.out.write('<br><a id="display_title" href="javascript:toggle(' +
+				# str(f.key().id()) + ');">' + ftitle+ '</a> <a href="/update_feed?id=' +
+				# str(f.key().id()) + '">Update</a> </a> <a href="/delete_feed?id=' +
+				# str(f.key().id()) + '">Delete</a>')
+			# self.response.out.write('<div id="' + str(f.key().id()) + '" style="display: none">')
+			
+			# for i in f.items.order('-date'):
+				# title = '->' + i.title					
+				# if not i.read:
+					# title = '<b>' + title + '</b>'
+				# self.response.out.write('<a href="/read?id='  + str(i.key().id()) +
+					# ' " target="_blank">' + title + '</a> ' +
+					# i.date.strftime("%A, %d. %B %Y %I:%M%p") + '<br>')
+			# self.response.out.write('</div>')
+		
+		# self.response.out.write('</body></html>')
 
 	
 class AddFeed(webapp2.RequestHandler):
@@ -253,14 +269,43 @@ class DeleteFeed(webapp2.RequestHandler):
 		time.sleep(1)
 		self.redirect('/')
 		
+class JSONFeeds(webapp2.RequestHandler):
+	def get(self):
+		user = get_feed_user(users.get_current_user())
+		data = {'feeds':[]}
+		for f in user.feeds:
+			feed = {}
+			feed['title'] = f.title
+			feed['key'] = str(f.key().id())
+			feed['unread_items'] = len([i for i in f.items if not i.read])
+			data['feeds'].append(feed)
 		
+		self.response.out.write(json.dumps(data))
+
+class JSONFeed(webapp2.RequestHandler):
+	def get(self):
+		user = get_feed_user(users.get_current_user())
+		data = {'items':[]}
+		f = LFeed.get_by_id(int(self.request.get('id')))
+		for i in f.items:
+			item = {}
+			item['title'] = i.title
+			item['id'] = str(i.key().id())
+			item['link'] = i.link
+			item['summary'] = i.summary
+			item['read'] = i.read
+			item['date'] = i.date.strftime("%d %b %I:%M%p")
+			data['items'].append(item)
+		
+		self.response.out.write(json.dumps(data))		
+
 class FollowLink(webapp2.RequestHandler):
 	def get(self):
 		user = get_feed_user(users.get_current_user())
 		item_id = self.request.get('id')
 		if not item_id:
 			self.redirect('/')
-		item = feed.LFeedItem.get_by_id(int(item_id))
+		item = LFeedItem.get_by_id(int(item_id))
 		if item:
 			item.read = True
 			item.put()
@@ -277,4 +322,6 @@ application = webapp2.WSGIApplication([
 	('/read', FollowLink),
 	('/update_feeds', UpdateFeeds),
 	('/upload_opml', UploadOPML),
+	('/json/feeds', JSONFeeds),
+	('/json/feed', JSONFeed),
 ], debug=True)

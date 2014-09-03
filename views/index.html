@@ -27,14 +27,16 @@
 
 <div id="wrap">
 <div id="header">
-	<div id="account">{{name}} (<a href="{{signout_url}}">Sign Out</a>) <a href="/admin">Admin</a> <a href=javascript:display_feeds()> Reload Feeds</a></div>
+	<div id="account">{{name}} (<a href="{{signout_url}}">Sign Out</a>) <a href="/admin">Admin</a> <a href=javascript:display_feeds()> Reload</a></div>
 </div>
 <div id="main">
-<h2>Feeds</h2>
+<div style="text-align: center">
+<b>Feeds</b>
+</div>
 	<div class="row">
 		<div style="align:center">
 			<form action="/add_feed" method="post">
-			<div><input type="text" name="feed" class="field-element" style="float:left;margin-left:60px;"></div><div><input type="submit" value="Add Feed" style="float:right;margin-right:100px;"></div>
+			<div><input type="text" name="feed" class="field-element" style="float:left;margin-left:10px;"></div><div><input type="submit" value="Add" style="float:right;margin-right:10px;"></div>
 		</form>
 		</div>
 	</div>
@@ -42,18 +44,13 @@
 </div>
 </div>
 <div id="sidebar">
-<h2>Feed</h2>
 <div id="feed">
 </div>
 </div>
 <div id="footer">
-<p>Footer</p>
+{{year}} &copy; {{title}}
 </div>
 </div>
-
-<!--p id="footer">
-    {{year}} &copy; {{title}}.
-</p-->
 
 <script src="assets/js/jquery.min.js"></script>
 <script src="assets/js/scripts.js"></script>

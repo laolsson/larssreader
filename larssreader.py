@@ -124,7 +124,9 @@ class MainPage(webapp2.RequestHandler):
 		template.render( path,{
                 "name"	: users.get_current_user().nickname(),
                 "signout_url"	: users.create_logout_url('/'),
-                "domain": "www.socs.se"
+                "domain": "www.socs.se",
+		"year": "2014",
+		"title": "LO Industries"
 		}))
 		
 		

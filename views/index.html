@@ -3,14 +3,14 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>LaRSSReader</title>
-	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet" media="screen">
-	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
+	<!--link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet"-->
 <link rel="stylesheet" type="text/css" href="/assets/css/styles.css" />
 <meta name="description" content="LaRSSReader">
 
 </head>
 
-<body>
+<body onload=javascript:display_feeds()>
 
 <!--div id="page">
     <div id="header" class="header">
@@ -27,14 +27,17 @@
 
 <div id="wrap">
 <div id="header">
-	|  {{name}} (<a href="{{signout_url}}">Sign Out</a>) <a href="/admin">Admin</a> <a href=javascript:test()> Test</a>
-	</div>
+	<div id="account">{{name}} (<a href="{{signout_url}}">Sign Out</a>) <a href="/admin">Admin</a> <a href=javascript:display_feeds()> Reload Feeds</a></div>
 </div>
 <div id="main">
 <h2>Feeds</h2>
-	  <form action="/add_feed" method="post">
-      <div><input type="text" name="feed"></div><div><input type="submit" value="Add Feed"></div>
-	  </form>
+	<div class="row">
+		<div style="align:center">
+			<form action="/add_feed" method="post">
+			<div><input type="text" name="feed" class="field-element" style="float:left;margin-left:60px;"></div><div><input type="submit" value="Add Feed" style="float:right;margin-right:100px;"></div>
+		</form>
+		</div>
+	</div>
 <div id="feeds">
 </div>
 </div>

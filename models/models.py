@@ -17,6 +17,7 @@ class LFeed(db.Model):
 class LFeedItem(db.Model): 
 	title = db.StringProperty(required=False)
 	summary = db.TextProperty(required=False)
+	content = db.TextProperty(required=False)
 	link = db.StringProperty(required=False)
 	date = db.DateTimeProperty(required=False)
 	read = db.BooleanProperty(required=False)

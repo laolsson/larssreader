@@ -203,7 +203,8 @@ class UpdateFeed(webapp2.RequestHandler):
 					d = datetime.datetime.now()
 					if hasattr(i, 'published_parsed'):
 						d = datetime.datetime.fromtimestamp(mktime(i.published_parsed))
-					feed.LFeedItem(feed=f, title=it, summary=i.summary, date=d, link=i.link, read=False).put()
+					logging.info("ccs start")
+					LFeedItem(feed=f, title=it, summary=i.summary, date=d, link=i.link, read=False).put()
 					logging.info("Adding item " + it)
 				else:
 					logging.info("Item " + it + " already found")		
@@ -291,7 +292,7 @@ class JSONFeed(webapp2.RequestHandler):
 		user = get_feed_user(users.get_current_user())
 		data = {'items':[]}
 		f = LFeed.get_by_id(int(self.request.get('id')))
-		for i in f.items:
+		for i in f.items.order('-date'):
 			item = {}
 			item['title'] = i.title
 			item['id'] = str(i.key().id())

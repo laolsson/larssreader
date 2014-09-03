@@ -1,26 +1,21 @@
 
-function test(){
+function display_feeds(){
 	$.get('/json/feeds',function(r){
-               render(r);
+               render_feeds(r);
            },'json');
 		   $("#testing").append("Error - got no feeds")
 			}
 			
-function render(r) {
-	var tmp = "AAA";
+function render_feeds(r) {
+	var tmp = '<div id="feeds">';
 	$.each(r.feeds,function(){
-			var title = this.title
-			if(this.unread_items > 0)
-				title = '<b>' + title + '(' + this.unread_items + ')</b>'
-			$("#feeds").append('<div class="row"><a href="javascript:display_feed(' + this.key + ')">' + title + '</a> <a href="/update_feed?id=' + this.key + '">-></a></div>');	
-                    /*tmp.append(
-                        '<div class="row">'+
-                            '<span class="from">'+this.name+'</span>'+
-                        +'</div>'*/
-                    });
-                
-
-	$("#testing").show(tmp)	
+		var title = this.title
+		if(this.unread_items > 0)
+			title = '<b>' + title + '(' + this.unread_items + ')</b>'
+		tmp = tmp + ('<div class="row"><a href="javascript:display_feed(' + this.key + ')">' + title + '</a> <a href="/update_feed?id=' + this.key + '">-></a></div>');	
+    });
+	tmp = tmp + '</div>'; 
+	$("#feeds").replaceWith(tmp);	
 }
 	
 function display_feed(id){
@@ -38,13 +33,7 @@ function render_feed(r){
 			if(!this.read)
 				title = '<b>' + title + '</b>'
 			tmp = tmp + ('<div class="row"><a href="/read?id=' + this.id + ' " target="_blank">' + title + '</a> <a href="/read?id=' + this.id + ' " target="_blank"> -></a> ' + this.date + '</div>')
-					
-					/*
-                    tmp.append(
-                        '<div class="row">'+
-                            '<span class="from">'+this.name+'</span>'+
-                        +'</div>'*/
-                    });
+        });
     tmp = tmp + '</div>';            
 	$("#feed").replaceWith(tmp)
 }

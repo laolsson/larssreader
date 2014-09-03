@@ -12,7 +12,7 @@ function render(r) {
 			var title = this.title
 			if(this.unread_items > 0)
 				title = '<b>' + title + '(' + this.unread_items + ')</b>'
-			$("#feeds").append('<div class="row"><a href="javascript:display_feed(' + this.key + ')">' + title + '</a></div>');	
+			$("#feeds").append('<div class="row"><a href="javascript:display_feed(' + this.key + ')">' + title + '</a> <a href="/update_feed?id=' + this.key + '">-></a></div>');	
                     /*tmp.append(
                         '<div class="row">'+
                             '<span class="from">'+this.name+'</span>'+
@@ -31,7 +31,7 @@ function display_feed(id){
 			}
 
 function render_feed(r){
-		var tmp = " ";
+		var tmp = '<div id="feed">';
 		$.each(r.items,function(){
 			var title = this.title;
 			
@@ -45,7 +45,7 @@ function render_feed(r){
                             '<span class="from">'+this.name+'</span>'+
                         +'</div>'*/
                     });
-                
+    tmp = tmp + '</div>';            
 	$("#feed").replaceWith(tmp)
 }
 

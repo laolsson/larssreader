@@ -213,7 +213,7 @@ class UpdateFeed(webapp2.RequestHandler):
 			
 	def get(self):
 		logging.info("Updating feed " + self.request.get('id'))
-		f = feed.LFeed.get_by_id(int(self.request.get('id')))
+		f = LFeed.get_by_id(int(self.request.get('id')))
 		if f:		
 			logging.info("Updating feed " + self.request.get('id') + " with url " + str(f.url))
 			UpdateFeed.update_feed(f, self)
@@ -225,7 +225,7 @@ class UpdateFeed(webapp2.RequestHandler):
 
 class UpdateFeeds(webapp2.RequestHandler):
 	def get(self):
-		for f in feed.LFeed.all():
+		for f in LFeed.all():
 			UpdateFeed.update_feed(f, self)
 		
 		# wait until consistent hack
@@ -275,7 +275,11 @@ class JSONFeeds(webapp2.RequestHandler):
 		data = {'feeds':[]}
 		for f in user.feeds:
 			feed = {}
-			feed['title'] = f.title
+			if not f.title:
+				ftitle = f.url
+			else:
+				ftitle = f.title
+			feed['title'] = ftitle
 			feed['key'] = str(f.key().id())
 			feed['unread_items'] = len([i for i in f.items if not i.read])
 			data['feeds'].append(feed)

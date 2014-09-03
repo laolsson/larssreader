@@ -167,7 +167,7 @@ class AddFeed(webapp2.RequestHandler):
 		
 		#f = feed.LFeed.gql("WHERE url = :1", self.request.get('feed'))
 		if self.request.get('feed') not in all_feeds:
-			f = feed.LFeed()
+			f = LFeed()
 			f.url = self.request.get('feed')
 			f.added_time = datetime.datetime.now()
 			f.user = user

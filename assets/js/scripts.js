@@ -27,9 +27,13 @@ function display_feed(id){
 
 function render_feed(r){
 		var tmp = '<div id="feed">';
+		
+		/*$.each(r.feed,function(){*/
+			tmp = tmp + '<div class="row"><b>' + r.feed.title + '</b> Update: ' + r.feed.last_update + '<a href="/update_feed?id=' + r.feed.key + '">Update</a> <a href="/update_feed?id=' + r.feed.key + '">All</a><a href="/update_feed?id=' + r.feed.key + '">Unread</a></div>'
+		//});
+		
 		$.each(r.items,function(){
 			var title = this.title;
-			
 			if(!this.read)
 				title = '<b>' + title + '</b>'
 			tmp = tmp + ('<div class="row"><a href="/read?id=' + this.id + ' " target="_blank">' + title + '</a> <a href="/read?id=' + this.id + ' " target="_blank"> -></a> ' + this.date + '</div>')

@@ -294,6 +294,7 @@ class JSONFeed(webapp2.RequestHandler):
 		user = get_feed_user(users.get_current_user())
 		data = {'items':[]}
 		f = LFeed.get_by_id(int(self.request.get('id')))
+		data['feed'] = {'title': f.title, 'last_update': f.last_successful_update.strftime("%d %b %I:%M%p"), 'key':str(f.key().id())}
 		for i in f.items.order('-date'):
 			item = {}
 			item['title'] = i.title

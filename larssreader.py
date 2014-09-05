@@ -128,37 +128,6 @@ class MainPage(webapp2.RequestHandler):
 		"year": "2014",
 		"title": "LO Industries"
 		}))
-		
-		
-		# for f in user.feeds:
-			# # If the feed is missing a title use the url
-			# if not f.title:
-				# ftitle = f.url
-			# else:
-				# ftitle = f.title
-				
-			# unread_items = [i for i in f.items if not i.read] #f.items.filter('read =', True)
-			# logging.info("unread items:" + str(len(unread_items)))
-			# if len(unread_items) > 0:
-				# ftitle = '<b>' + ftitle + '(' + str(len(unread_items)) + ')</b>'
-			# else:
-				# ftitle = ftitle + '(0)'
-			# self.response.out.write('<br><a id="display_title" href="javascript:toggle(' +
-				# str(f.key().id()) + ');">' + ftitle+ '</a> <a href="/update_feed?id=' +
-				# str(f.key().id()) + '">Update</a> </a> <a href="/delete_feed?id=' +
-				# str(f.key().id()) + '">Delete</a>')
-			# self.response.out.write('<div id="' + str(f.key().id()) + '" style="display: none">')
-			
-			# for i in f.items.order('-date'):
-				# title = '->' + i.title					
-				# if not i.read:
-					# title = '<b>' + title + '</b>'
-				# self.response.out.write('<a href="/read?id='  + str(i.key().id()) +
-					# ' " target="_blank">' + title + '</a> ' +
-					# i.date.strftime("%A, %d. %B %Y %I:%M%p") + '<br>')
-			# self.response.out.write('</div>')
-		
-		# self.response.out.write('</body></html>')
 
 	
 class AddFeed(webapp2.RequestHandler):
@@ -285,16 +254,16 @@ class JSONFeeds(webapp2.RequestHandler):
 			feed['title'] = ftitle
 			feed['key'] = str(f.key().id())
 			feed['unread_items'] = len([i for i in f.items if not i.read])
-			data['feeds'].append(feed)
-		
+			data['feeds'].append(feed)		
 		self.response.out.write(json.dumps(data))
 
+		
 class JSONFeed(webapp2.RequestHandler):
 	def get(self):
 		user = get_feed_user(users.get_current_user())
 		data = {'items':[]}
 		f = LFeed.get_by_id(int(self.request.get('id')))
-		data['feed'] = {'title': f.title, 'last_update': f.last_successful_update.strftime("%d %b %I:%M%p"), 'key':str(f.key().id())}
+		data['feed'] = {'title': f.title, 'last_update': f.last_successful_update.strftime("%y/%m/%d %H:%M"), 'key':str(f.key().id())}
 		for i in f.items.order('-date'):
 			item = {}
 			item['title'] = i.title
@@ -307,6 +276,7 @@ class JSONFeed(webapp2.RequestHandler):
 		
 		self.response.out.write(json.dumps(data))		
 
+		
 class FollowLink(webapp2.RequestHandler):
 	def get(self):
 		user = get_feed_user(users.get_current_user())

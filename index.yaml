@@ -10,6 +10,12 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: LFeed
+  properties:
+  - name: user
+  - name: title
+    direction: desc
+
 - kind: LFeedItem
   properties:
   - name: feed

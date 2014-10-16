@@ -103,14 +103,15 @@ def get_feed_user(google_user):
 		logging.info("User " + google_user.nickname() + " logged in")
 	else:
 		logging.info("New user:" + google_user.nickname() + ", creating User")
-		u = feed.User()
+		u = User()
 		u.name = google_user.nickname()
 		u.id = google_user.user_id()
 		u.put()
 		user_obj = u
 	
 	return user_obj
-	
+
+
 class MainPage(webapp2.RequestHandler):
 	@login_required
 	@header
@@ -119,15 +120,15 @@ class MainPage(webapp2.RequestHandler):
 		user = get_feed_user(users.get_current_user())
 		
 		path = os.path.join(os.path.dirname(__file__), 'views' ,'index.html')
-		self.response.out.write(
-		
-		template.render( path,{
-                "name"	: users.get_current_user().nickname(),
-                "signout_url"	: users.create_logout_url('/'),
-                "domain": "www.socs.se",
-		"year": "2014",
-		"title": "LO Industries"
-		}))
+		self.response.out.write(		
+			template.render( path,{
+				"name"	: users.get_current_user().nickname(),
+				"signout_url"	: users.create_logout_url('/'),
+				"domain": "www.socs.se",
+				"year": "2014",
+				"title": "LO Industries"
+			})
+		)
 
 	
 class AddFeed(webapp2.RequestHandler):
@@ -230,8 +231,7 @@ class UploadOPML(webapp2.RequestHandler):
 		
 		self.redirect('/')
 
-		
-		
+				
 class DeleteFeed(webapp2.RequestHandler):
 	def get(self):
 		f = feed.LFeed.get_by_id(int(self.request.get('id')))
@@ -240,12 +240,13 @@ class DeleteFeed(webapp2.RequestHandler):
 		# hack to make datastore consistent
 		time.sleep(1)
 		self.redirect('/')
+
 		
 class JSONFeeds(webapp2.RequestHandler):
 	def get(self):
 		user = get_feed_user(users.get_current_user())
 		data = {'feeds':[]}
-		for f in user.feeds:
+		for f in user.feeds.order('-title'):
 			feed = {}
 			if not f.title:
 				ftitle = f.url
@@ -263,7 +264,7 @@ class JSONFeed(webapp2.RequestHandler):
 		user = get_feed_user(users.get_current_user())
 		data = {'items':[]}
 		f = LFeed.get_by_id(int(self.request.get('id')))
-		data['feed'] = {'title': f.title, 'last_update': f.last_successful_update.strftime("%y/%m/%d %H:%M"), 'key':str(f.key().id())}
+		data['feed'] = {'title': f.title, 'last_update': f.last_successful_update.strftime("%d%b %H:%M"), 'key':str(f.key().id())}
 		for i in f.items.order('-date'):
 			item = {}
 			item['title'] = i.title
@@ -271,9 +272,8 @@ class JSONFeed(webapp2.RequestHandler):
 			item['link'] = i.link
 			item['summary'] = i.summary
 			item['read'] = i.read
-			item['date'] = i.date.strftime("%d %b %I:%M%p")
-			data['items'].append(item)
-		
+			item['date'] = i.date.strftime("%d%b %H:%M")
+			data['items'].append(item)		
 		self.response.out.write(json.dumps(data))		
 
 		

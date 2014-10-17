@@ -234,12 +234,29 @@ class UploadOPML(webapp2.RequestHandler):
 				
 class DeleteFeed(webapp2.RequestHandler):
 	def get(self):
-		f = feed.LFeed.get_by_id(int(self.request.get('id')))
+		f = LFeed.get_by_id(int(self.request.get('id')))
 		if f:
 			f.delete()
 		# hack to make datastore consistent
 		time.sleep(1)
 		self.redirect('/')
+		
+class MarkAsFeed(webapp2.RequestHandler):
+	def get(self):
+		if self.request.get('mark') == 'read':
+			read = True
+		else:
+			read = False
+		data = {'feeds':[]}
+		f = LFeed.get_by_id(int(self.request.get('id')))
+		if f:
+			for i in f.items:
+				logging.info("Marking as read:" + str(read))
+				i.read = read
+				i.put()
+		# hack to make datastore consistent
+		time.sleep(1)
+		self.response.out.write(json.dumps(data))
 
 		
 class JSONFeeds(webapp2.RequestHandler):
@@ -264,7 +281,7 @@ class JSONFeed(webapp2.RequestHandler):
 		user = get_feed_user(users.get_current_user())
 		data = {'items':[]}
 		f = LFeed.get_by_id(int(self.request.get('id')))
-		data['feed'] = {'title': f.title, 'last_update': f.last_successful_update.strftime("%d%b %H:%M"), 'key':str(f.key().id())}
+		data['feed'] = {'title': f.title, 'last_update': f.last_successful_update.strftime("%d%b %H:%M"), 'key':str(f.key().id()), 'unread_items': len([i for i in f.items if not i.read])}
 		for i in f.items.order('-date'):
 			item = {}
 			item['title'] = i.title
@@ -296,6 +313,7 @@ application = webapp2.WSGIApplication([
     ('/', MainPage),
 	('/add_feed', AddFeed),
 	('/update_feed', UpdateFeed),
+	('/markas_feed', MarkAsFeed),
 	('/delete_feed', DeleteFeed),
 	('/read', FollowLink),
 	('/update_feeds', UpdateFeeds),

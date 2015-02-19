@@ -5,6 +5,7 @@ import logging
 import os
 import time
 from time import mktime
+from datetime import timedelta
 import traceback
 import xml.etree.ElementTree as ET
 
@@ -169,20 +170,33 @@ class UpdateFeed(webapp2.RequestHandler):
 				f.put()
 			logging.info("size:" + str(len(frss.entries)))
 			for i in frss.entries:
+				
 				it = i.title.replace('\n', ' ').replace('\r', '')
 				if f.items.filter('title = ', it).count() == 0:
 					# check if there is a published date
 					d = datetime.datetime.now()
 					if hasattr(i, 'published_parsed'):
 						d = datetime.datetime.fromtimestamp(mktime(i.published_parsed))
-					logging.info("ccs start")
+					if d < (datetime.datetime.now() - timedelta(days=7)):
+						logging.info("too old, continuing")
+						continue
 					LFeedItem(feed=f, title=it, summary=i.summary, date=d, link=i.link, read=False).put()
 					logging.info("Adding item " + it)
 				else:
 					logging.info("Item " + it + " already found")		
+		
+			# finally delete items we don't want anymore
+			old_items = [i for i in f.items if i.date < (datetime.datetime.now() - timedelta(days=7))]
+			
+			for i in old_items:
+				i.delete()
+		
+			logging.info("Old items3:%d" % (len(old_items)))
+		
 		except Exception, e:
 			self.response.out.write("Failed to parse:%s" % (e))
-			self.response.out.write(traceback.format_exc())	
+			self.response.out.write(traceback.format_exc())
+			
 			
 	def get(self):
 		logging.info("Updating feed " + self.request.get('id'))
@@ -252,8 +266,10 @@ class MarkAsFeed(webapp2.RequestHandler):
 		if f:
 			for i in f.items:
 				logging.info("Marking as read:" + str(read))
-				i.read = read
-				i.put()
+				# only the feeds that are different to what we are setting it to
+				if i.read != read:
+					i.read = read
+					i.put()
 		# hack to make datastore consistent
 		time.sleep(1)
 		self.response.out.write(json.dumps(data))
@@ -303,7 +319,11 @@ class FollowLink(webapp2.RequestHandler):
 		item = LFeedItem.get_by_id(int(item_id))
 		if item:
 			item.read = True
-			item.put()
+			# just in case we're out of writes should still follow link
+			try:
+				item.put()
+			except Exception as e:
+				pass
 			self.redirect(str(item.link))
 		else:
 			self.response.out.write("Failed")

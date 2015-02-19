@@ -58,8 +58,6 @@ function markas_feed(id, which_tems_bool, read){
 	
 	$("#testing").append('<div id="feed">Error - got no feed</div>')
 }
-
-
 		
 function render_feed(r, unread_only){
 	var which_items = "Show All";
@@ -84,13 +82,21 @@ function render_feed(r, unread_only){
 				'    <a href="/update_feed?id=' + r.feed.key + '">Update</a> <a href="javascript:show_feed(' +
 				r.feed.key + ',' +  which_items_bool + ')">' + which_items + '</a> <a href="javascript:markas_feed(' +
 				r.feed.key + ',' + which_items_bool + ', ' + read + ')">' + read_link + '</a></div>';
-		
+	
+	even = true
 	$.each(r.items,function(){
 		var title = this.title;
+		row_class = 'row_even';
+		if (even)
+			row_class = 'row_uneven';
+		else
+			row_class = 'row_even';
+		even = !even;
+		row_class= 'row';
 		if(!unread_only || !this.read){
 			if(!this.read)
 				title = '<b>' + title + '</b>'
-			tmp = tmp + ('<div class="row"><a href="javascript:toggle(' + this.id + ')">'+ title +
+			tmp = tmp + ('<div class="' + row_class + '"><a href="javascript:toggle(' + this.id + ')">'+ title +
 					'</a>' + this.date + '</div><div id="' + this.id + '" style="display: none">' 
 					+ this.summary + '<br><br><a href="/read?id=' + this.id +
 					' " target="_blank"> <- Read more -> </a><br><br></div>')

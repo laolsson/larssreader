@@ -12,38 +12,24 @@
 
 <body onload=javascript:display_feeds()>
 
-<!--div id="page">
-    <div id="header" class="header">
-		LaRSS Reader - Welcome, {{name}} (<a href="{{signout_url}}">Sign Out</a>) <a href="/admin">Admin</a> <a href=javascript:test()> Test</a>
-    </div>
-
-	<div class="left-column">
-		<div>Left Side Row 1</div>
-	</div>
-	<div class="right-column">
-		<div>Right Side Row 1</div>
-	</div>
-</div-->
-
 <div id="wrap">
-<div id="header">
-	<div id="account">{{name}} (<a href="{{signout_url}}">Sign Out</a>) <a href="/admin">Admin</a> <a href=javascript:display_feeds()> Reload</a></div>
-</div>
-<div id="main">
-<div style="text-align: center">
-<b>Feeds</b>
-</div>
+	<div id="header">
+		<div id="left"></div>
+		<div id="title">LaRSSreader</div>
+		<div id="admin">{{name}} (<a href="{{signout_url}}">Sign Out</a>) <a href="/admin">Admin</a></div>
+	</div>
+	<div id="main">
+		<div style="text-align: center">
+	</div>
 	<div class="row">
 		<div style="align:center">
 			<form action="/add_feed" method="post">
-			<div><input type="text" name="feed" class="field-element" style="float:left;margin-left:10px;"></div><div><input type="submit" value="Add" style="float:right;margin-right:10px;"></div>
+			<div><input type="text" name="feed" class="field-element" style="float:left;margin-left:10px;"></div><div><input type="submit" value="Add Feed" style="float:right;margin-right:10px;"></div>
 		</form>
 		</div>
 	</div>
 <div id="feeds">
 </div>
-</body>
-</html>
 </div>
 <div id="sidebar">
 <div id="feed">
